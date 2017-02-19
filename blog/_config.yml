@@ -71,3 +71,5 @@ deploy:
   type: git
   repo: git@github.com:dongming/dongming.github.io.git
   branch: master
+
+duoshuo_shortname: guavago
