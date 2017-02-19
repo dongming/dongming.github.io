@@ -73,3 +73,4 @@ deploy:
   branch: master
 
 duoshuo_shortname: guavago
+avatar: /uploads/avatar.jpg
