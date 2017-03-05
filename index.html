@@ -238,6 +238,167 @@
   
 
   <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+  <link itemprop="mainEntityOfPage" href="https://dongming.github.io/2017/03/05/linux中文件与文件夹的权限/">
+
+  <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <meta itemprop="name" content="MING">
+    <meta itemprop="description" content="">
+    <meta itemprop="image" content="/uploads/avatar.jpg">
+  </span>
+
+  <span style="display:none" itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+    <meta itemprop="name" content="MING'S BLOG">
+    <span style="display:none" itemprop="logo" itemscope itemtype="http://schema.org/ImageObject">
+      <img style="display:none;" itemprop="url image" alt="MING'S BLOG" src="">
+    </span>
+  </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2017/03/05/linux中文件与文件夹的权限/" itemprop="url">
+                  linux中文件与目录的权限
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-05T21:38:29+08:00">
+                2017-03-05
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/2017/03/05/linux中文件与文件夹的权限/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/05/linux中文件与文件夹的权限/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h2 id="linux中文件的权限"><a href="#linux中文件的权限" class="headerlink" title="linux中文件的权限"></a>linux中文件的权限</h2><p>最近看了《鸟哥的linxu私房菜》其中涉及到linux中文件的权限问题，对于一个已经有过一定linux使用经验的人来说，也许知道了rwx三个分别代表了什么样的权限。在平时的使用中如果没有出问题，也许就不会去特地系统性的学习一下linux的文件和目录权限。很多时候都是google或者百度就是为了解决眼前的问题，不看书总结就不会有系统的知识。</p>
+<h3 id="linux文件的权限"><a href="#linux文件的权限" class="headerlink" title="linux文件的权限"></a>linux文件的权限</h3><p>我的linux机器(ubuntu server)上的/etc目录下执行ll命令，显示如下的文件与目录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">drwxr-xr-x  9 root root    4096 Feb 17 18:01 apparmor.d/</div><div class="line">drwxr-xr-x  3 root root    4096 Feb 17 18:00 apport/</div><div class="line">drwxr-xr-x  6 root root    4096 Feb 17 18:05 apt/</div><div class="line">-rw-r-----  1 root daemon   144 Jan 14  2016 at.deny</div><div class="line">-rw-r--r--  1 root root    2188 Aug 31  2015 bash.bashrc</div><div class="line">-rw-r--r--  1 root root      45 Aug 12  2015 bash_completion</div></pre></td></tr></table></figure>
+<p>其中第一个字符为”d”的代表这是一个目录，”-“的代表是一个文件，这个一般使用过linux的都了解。第一个字符后跟着三组权限分别对应着user，group，others用户的权限。我们拿bash.bashrc文件为例，其权限为：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-rw-r--r--  1 root root    2188 Aug 31  2015 bash.bashrc</div></pre></td></tr></table></figure>
+<p>这个文件是属于root的，对应的用户组也是root。其对应权限”rw- r– r–”,说明root本身对其有rw的权限，而其同组的其他用户和其他非同组的用户对其只有可取权限。这个都是非常好理解的，其实文件的权限还是非常好理解的。</p>
+<p>权限还可以用数字来表示，经常会听说600,755,777权限等，这个主要是指在权限表中r权限的值为4，w权限值为2，x权限值为1，而平常所说的755三个数字分别表示user，group，others的权限。那么7就是代表的这个用户对这个文件有rwx的权限，同组的其他用户对这个文件是rx的权限，其他用户对这个用户也是rx的权限。</p>
+<p>当我作为一个others用户去修改一个我没有w权限的文件时会发生什么情况呢？我用mars用户去修改root用户的bash.bashrc文件</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">echo &quot;hello world&quot;</div><div class="line">&quot;bash.bashrc&quot;</div><div class="line">&quot;bash.bashrc&quot; E212: Can&apos;t open file for writing</div><div class="line">Press ENTER or type command to continue</div></pre></td></tr></table></figure>
+<p>我在这个文件的最后增加了echo “hello world”这句话，当我执行保存时，会出现Can’t open file for writing的错误，说明我们队这个文件是没有写的权限的。</p>
+<p>对于文件的权限还是比较好理解的</p>
+<h3 id="linux中目录的权限"><a href="#linux中目录的权限" class="headerlink" title="linux中目录的权限"></a>linux中目录的权限</h3><p>上面的例子显示目录也是有对应的rwx的权限的，今天看书的时候才对目录的权限了解的这么细致。我就做了一下实验，来看看目录的权限分别表示什么</p>
+<p>我使用root账户在/tmp目录下建立了一个目录act，并且在里面建立了一个properties的文件server.properties。并且设置这个目录对于others的用户只有r权限:</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">drwxr--r--  2 root root 4096 Mar  5 09:35 act/</div></pre></td></tr></table></figure>
+<p>root对这个目录有rwx的权限，而我一个others的mars用户对这个目录只有r的权限，我去访问以下这个目录试试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">mars@ubuntu:/tmp$ ls act/</div><div class="line">ls: cannot access &apos;act/server.properties&apos;: Permission denied</div><div class="line">server.properties</div><div class="line">mars@ubuntu:/tmp$ cd act/</div><div class="line">-su: cd: act/: Permission denied</div></pre></td></tr></table></figure>
+<p> 对于只有r权限的目录，我只能看到这个目录下有哪些文件，对于cd操作是没有权限的，也就是我无法进入这个目录</p>
+<p> 想要进入这个目录怎么办呢？加入x的权限，这里x的权限不是文件的执行权限，而是用户能够进入这个工作目录的(access)权限。</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">drwxr-xr-x  2 root root 4096 Mar  5 09:35 act/</div></pre></td></tr></table></figure>
+<p> 现在目录的权限已经变更为755了，我的mars用户对这个目录具有的access的权限。看下面的操作</p>
+ <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">mars@ubuntu:/tmp$ cd act/</div><div class="line">mars@ubuntu:/tmp/act$ ll</div><div class="line">total 8</div><div class="line">drwxr-xr-x 2 root root 4096 Mar  5 09:35 ./</div><div class="line">drwxrwxrwt 9 root root 4096 Mar  5 09:50 ../</div><div class="line">-rw-r--r-- 1 root root    0 Mar  5 09:35 server.properties</div></pre></td></tr></table></figure>
+<p>现在mars用户可以执行cd命令，将act的目录作为当前的工作目录了。</p>
+<p>现在删除一下这个server.properties试试</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">mars@ubuntu:/tmp/act$ rm server.properties </div><div class="line">rm: remove write-protected regular empty file &apos;server.properties&apos;? y</div><div class="line">rm: cannot remove &apos;server.properties&apos;: Permission denied</div></pre></td></tr></table></figure>
+<p>我们能够读取act目录中内容，能够进入act目录作为当前的工作目录，但是我们无法删除该目录下的文件是因为我们对于这个目录没有w权限<br>w权限主要是修改这个目录结构的权限</p>
+<ul>
+<li>在目录下新建文件或者目录</li>
+<li>删除目录下的文件</li>
+<li>对目录下的文件重命名</li>
+<li>移动目录下的文件</li>
+</ul>
+<p>所以这个权限对于目录来说最重要，默认的目录建立的时候是755，也就是说others用户可以访问和读取文件夹的信息，但是不能修改文件夹的结构。对于一些重要的目录这些权限保证了和这个目录的安全，是非常实用的配置。</p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>linux中对于文件和目录的权限是有区别的<br>rwx对于文件代表着可读，可写和可执行，但是对于目录而言则分别表示可以读取目录的结构信息，可能更改目录的结构和能将这个目录作为当前工作目录。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
   <link itemprop="mainEntityOfPage" href="https://dongming.github.io/2017/02/12/Java中的日志一：log4j的使用/">
 
   <span style="display:none" itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -459,7 +620,7 @@
           
             <div class="site-state-item site-state-posts">
               <a href="/archives">
-                <span class="site-state-item-count">1</span>
+                <span class="site-state-item-count">2</span>
                 <span class="site-state-item-name">日志</span>
               </a>
             </div>
